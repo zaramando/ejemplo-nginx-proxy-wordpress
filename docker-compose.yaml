@@ -1,0 +1,62 @@
+version: '3.7'
+
+services:
+
+  nginx-proxy:
+    container_name: nginx-proxy
+    image: jwilder/nginx-proxy
+    ports:
+        - "80:80"
+    volumes:
+        - /var/run/docker.sock:/tmp/docker.sock:ro
+    restart: always
+
+  my-page-1:
+    container_name: my-page-1
+    image: wordpress
+    restart: always
+    expose:
+      - "80"
+    environment:
+      - VIRTUAL_HOST=my-page-1.local
+      - WORDPRESS_DB_HOST=mysql-1
+      - WORDPRESS_DB_USER=root
+      - WORDPRESS_DB_PASSWORD=password
+      - WORDPRESS_DB_NAME=wordpress
+    depends_on: 
+      - mysql-1
+    restart: always
+
+  mysql-1:
+    container_name: mysql-1
+    image: mysql:8.0.13
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      - MYSQL_DATABASE=wordpress
+      - MYSQL_ROOT_PASSWORD=password 
+    restart: always
+
+  my-page-2:
+    container_name: my-page-2
+    image: wordpress
+    restart: always
+    expose:
+        - "80"
+    environment:
+        - VIRTUAL_HOST=my-page-2.local
+        - WORDPRESS_DB_HOST=mysql-2
+        - WORDPRESS_DB_USER=root
+        - WORDPRESS_DB_PASSWORD=password
+        - WORDPRESS_DB_NAME=wordpress
+    depends_on: 
+      - mysql-2
+    restart: always
+
+  mysql-2:
+    container_name: mysql-victor
+    image: mysql:8.0.13
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+        - MYSQL_DATABASE=wordpress
+        - MYSQL_ROOT_PASSWORD=password
+    restart: always
